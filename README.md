@@ -1,4 +1,5 @@
-# sqlite_example
+# Caching API responses using SQLite and MobX.
 
-Flutter project: SQLite + MobX.
-When the app loads for the first time it hits the API, gets the data and stores the response in SQLite.
+This is simple Flutter App example to that stores the REST Api responses into a SQLite table.
+
+![Weather app splash screen](https://thewebstorebyg.files.wordpress.com/2020/02/ezgif.com-resize.gif)

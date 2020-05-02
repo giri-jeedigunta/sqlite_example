@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'label_models.dart';
+import 'quotes_models.dart';
 
 class DBStore {
   DBStore._();
@@ -24,13 +24,13 @@ class DBStore {
 
   Future initNewDB() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, 'myapp_sqlite.db');
+    final path = join(documentsDirectory.path, 'quotes_list_sqlite.db');
 
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       // Table for App Labels
       await db.execute(
-        'CREATE TABLE AppLabels(id INTEGER PRIMARY KEY,name TEXT,description TEXT)',
+        'CREATE TABLE Quotes(id INTEGER PRIMARY KEY,author TEXT,quote TEXT, quoteId TEXT)',
       );
       await db.execute(
         'CREATE TABLE ApiCacheLog(id INTEGER PRIMARY KEY,name TEXT,lastUpdated TEXT)',
@@ -45,37 +45,38 @@ class DBStore {
     return queryResult;
   }
 
-  Future inserAppLabels(List appLabelsList) async {
+  Future inserQuotes(List quotesList) async {
     final db = await database;
     final batch = db.batch();
 
-    await clearTable('AppLabels');
+    await clearTable('Quotes');
 
-    for (int i = 0; i < appLabelsList.length; i++) {
-      batch.insert('AppLabels', appLabelsList[i].toMap());
+    for (int i = 0; i < quotesList.length; i++) {
+      batch.insert('Quotes', quotesList[i].toMap());
     }
 
     await batch.commit();
     await updateCacheLog(CacheLog(
       Random().nextInt(100),
-      'AppLabels',
+      'Quotes',
       (DateTime.now().toUtc()).toString(),
     ));
   }
 
 // Get All app labels
-  Future getAppLabels() async {
+  Future getQuotes() async {
     final db = await database;
-    final labels = await db.query('AppLabels');
+    final labels = await db.query('Quotes');
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return labels.isNotEmpty
         ? List.generate(
             labels.length,
-            (i) => AppLabelContent(
+            (i) => Quotes(
               labels[i]['id'],
-              labels[i]['name'],
-              labels[i]['description'],
+              labels[i]['author'],
+              labels[i]['quote'],
+              labels[i]['quoteId'],
             ),
           )
         : [];

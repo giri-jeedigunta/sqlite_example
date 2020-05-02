@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:sqlite_example/labels.dart';
+import 'package:sqlite_example/quotes_store.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiProvider(
         providers: [
-          Provider<AppLabels>(create: (_) => AppLabels(), lazy: false),
+          Provider<QuotesListStore>(create: (_) => QuotesListStore()),
         ],
         child: MaterialApp(
           home: MyHomePage(),
@@ -24,31 +25,69 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    final appLabels = Provider.of<AppLabels>(context).allLabels;
+    final quotesList = Provider.of<QuotesListStore>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('SQLite Example'),
+        title: Text('SQLite + MobX Example'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.all(8),
-                itemCount: appLabels.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                      child: Text(
-                          'key: ${appLabels[index].name} val: ${appLabels[index].description}'),
-                    ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Random Quotes List',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DancingScript',
+                ),
               ),
+            ),
+            Expanded(
+              child: Observer(
+                  builder: (_) => quotesList.allQuotes.isNotEmpty
+                      ? ListView.separated(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: quotesList.allQuotes.length,
+                          itemBuilder: (BuildContext context, int index) =>
+                              Container(
+                            child: RichText(
+                              text: TextSpan(
+                                text: '${quotesList.allQuotes[index].quote}',
+                                style: TextStyle(
+                                  fontFamily: 'DancingScript',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                  height: 1.5,
+                                  color: Colors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text:
+                                        '\n - ${quotesList.allQuotes[index].author}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const Divider(
+                            color: Colors.redAccent,
+                            thickness: 1,
+                          ),
+                        )
+                      : Center(
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            child: const CircularProgressIndicator(),
+                          ),
+                        )),
             ),
           ],
         ),

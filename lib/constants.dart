@@ -1,2 +1,3 @@
 // Base API URL:
-const String kBaseApiURL = 'https://xtsummit.firebaseapp.com/api';
+const String kBaseApiURL =
+    'https://programming-quotes-api.herokuapp.com/quotes';
