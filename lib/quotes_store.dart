@@ -19,9 +19,15 @@ abstract class _QuotesListStore with Store {
   Future<void> getQuotes() async {
     allQuotes = [];
     final quotesList = await DBStore.db.getQuotes();
+    final cacheLogs = await DBStore.db.getCacheLogs();
 
-    if (quotesList.isNotEmpty) {
-      allQuotes = quotesList;
+    if (quotesList.isNotEmpty && cacheLogs.isNotEmpty) {
+      final cachedForDays = validateCache(cacheLogs);
+      if (cachedForDays > kCacheExpiryinDays) {
+        await getQuotesFromApi();
+      } else {
+        allQuotes = quotesList;
+      }
     } else {
       await getQuotesFromApi();
     }
@@ -42,5 +48,18 @@ abstract class _QuotesListStore with Store {
     }
 
     await DBStore.db.inserQuotes(allQuotes);
+  }
+
+  int validateCache(cacheTable) {
+    int cachedForDays;
+    for (int i = 0; i < cacheTable.length; i++) {
+      if (cacheTable[i].name == 'Quotes') {
+        cachedForDays = (DateTime.now()
+                .difference(DateTime.parse(cacheTable[i].lastUpdated)))
+            .inDays;
+      }
+    }
+
+    return cachedForDays;
   }
 }

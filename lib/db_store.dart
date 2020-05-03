@@ -45,6 +45,23 @@ class DBStore {
     return queryResult;
   }
 
+  // Get Cache Log
+  Future getCacheLogs() async {
+    final db = await database;
+    final logs = await db.query('ApiCacheLog');
+
+    return logs.isNotEmpty
+        ? List.generate(
+            logs.length,
+            (i) => CacheLog(
+              logs[i]['id'],
+              logs[i]['name'],
+              logs[i]['lastUpdated'],
+            ),
+          )
+        : [];
+  }
+
   Future inserQuotes(List quotesList) async {
     final db = await database;
     final batch = db.batch();
