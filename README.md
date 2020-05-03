@@ -1,6 +1,6 @@
 # Flutter project: SQLite + MobX.
 
-## Caching API responses using SQLite and MobX.
+## Storing API responses using SQLite and MobX.
 
 This is simple Flutter App example to that stores the REST Api responses into a SQLite table.
 
